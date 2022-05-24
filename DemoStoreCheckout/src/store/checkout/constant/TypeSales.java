@@ -1,4 +1,3 @@
-/**
  * Author: tungnd
  * create date: 23/05/2022
  */
@@ -9,15 +8,11 @@ package store.checkout.constant;
  */
 public enum TypeSales {
 	// no promotions
-	NORMAL("01"), 
-	// buy one, get one free 
-	// only products sold by piece
-	TYPE_02("02"), 
+	NO_PROMOTIONS("01"),
+	// buy one, get one free
+	BUY_ONE_GET_ONE("02"),
 	// buy tow, get one free
-	// only products sold by piece
-	TYPE_03("03"),
-	// discount 25%
-	TYPE_04("04");
+	BUY_TOW_GET_ONE("03");
 
 	private String value;
 
@@ -31,6 +26,6 @@ public enum TypeSales {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(TypeSales.NORMAL.toString());
+		System.out.println(TypeSales.NO_PROMOTIONS.toString());
 	}
 }
