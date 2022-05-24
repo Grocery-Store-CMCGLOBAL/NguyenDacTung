@@ -26,7 +26,7 @@ import store.checkout.entity.Product;
 
 /**
  * 
- * Demo Quầy thanh toán của cửa hàng tạp hóa
+ * Demo Grocery store checkout counter
  *
  */
 public class StoreCheckout {
@@ -101,25 +101,25 @@ public class StoreCheckout {
 			} else if (TypeSales.TYPE_04.toString().equals(typeSales)) {
 				typeSales = "DISCOUNT 25%";
 			} else {
-
+				typeSales = "NO PROMOTIONS";
 			}
 			System.out.println("Index: " + ++index);
 			System.out.println("Product Id: " + product.getId());
 			System.out.println("Name product: " + product.getNameProduct());
 			System.out.println("TypeProduct: " + typeProduct);
-			System.out.println("Price Product: " + product.getPrice());
+			System.out.println("Price Product: " + product.getPrice() + "$");
 			if (detailBill.getNumberOfProduct() != null) {
 				System.out.println("Quantity: " + detailBill.getNumberOfProduct());
 			}
 			if (detailBill.getWeightofProduct() != null) {
-				System.out.println("Weight: " + detailBill.getWeightofProduct());
+				System.out.println("Weight: " + detailBill.getWeightofProduct() + "kg");
 			}
 			System.out.println("Type Sales: " + typeSales);
-			System.out.println("total Price: " + detailBill.getTotalPriceProduct());
+			System.out.println("total Price: " + detailBill.getTotalPriceProduct() + "$");
 			totalMoney += detailBill.getTotalPriceProduct();
 			System.out.println("");
 		}
-		System.out.println("Total Money: " + totalMoney);
+		System.out.println("Total Money: " + totalMoney + "$");
 	}
 
 	/**
@@ -134,7 +134,7 @@ public class StoreCheckout {
 		Float totalPrice = null;
 		DetailBill detailBill = null;
 		do {
-			System.out.println("Enter code Procduct: ");
+			System.out.println("Enter Product Code: ");
 			String code = scanner.nextLine();
 			matcher = positiveNumber.matcher(code);
 			if (!matcher.matches()) {
@@ -159,11 +159,10 @@ public class StoreCheckout {
 								Integer intSl = Integer.parseInt(stringSl);
 								if (!exitListDetailBill(listDetailBill, product, TypeProduct.PIECE_PRODUCT.toString(),
 										intSl, null)) {
-									Float totalPriceProduct = salesPromotions(product,
-											TypeProduct.PIECE_PRODUCT.toString(), intSl, null);
 									detailBill = new DetailBill();
+									Float totalPriceProduct = salesPromotions(product, detailBill,
+											TypeProduct.PIECE_PRODUCT.toString(), intSl, null);
 									detailBill.setProduct(product);
-									detailBill.setNumberOfProduct(intSl);
 									detailBill.setTotalPriceProduct(totalPriceProduct);
 									listDetailBill.add(detailBill);
 								}
@@ -181,9 +180,9 @@ public class StoreCheckout {
 								Float fltWeight = Float.parseFloat(stWeight);
 								if (!exitListDetailBill(listDetailBill, product, TypeProduct.BULK_PRODUCT.toString(),
 										null, fltWeight)) {
-									Float totalPriceProduct = salesPromotions(product,
-											TypeProduct.BULK_PRODUCT.toString(), null, fltWeight);
 									detailBill = new DetailBill();
+									Float totalPriceProduct = salesPromotions(product, detailBill,
+											TypeProduct.BULK_PRODUCT.toString(), null, fltWeight);
 									detailBill.setProduct(product);
 									detailBill.setWeightofProduct(fltWeight);
 									detailBill.setTotalPriceProduct(totalPriceProduct);
@@ -205,16 +204,14 @@ public class StoreCheckout {
 			Product pr = detailBill.getProduct();
 			if (pr.getId() == product.getId()) {
 				if (TypeProduct.PIECE_PRODUCT.toString().equals(typeProduct)) {
-					detailBill.setNumberOfProduct(detailBill.getNumberOfProduct() + intSl);
-					totalPriceProduct = salesPromotions(pr, TypeProduct.PIECE_PRODUCT.toString(),
-							detailBill.getNumberOfProduct(), null);
+					totalPriceProduct = salesPromotions(pr, detailBill, TypeProduct.PIECE_PRODUCT.toString(), intSl,
+							null);
 				}
 				if (TypeProduct.BULK_PRODUCT.toString().equals(typeProduct)) {
-					detailBill.setWeightofProduct(detailBill.getWeightofProduct() + fltWeight);
-					totalPriceProduct = salesPromotions(pr, TypeProduct.BULK_PRODUCT.toString(), null,
-							detailBill.getWeightofProduct());
+					totalPriceProduct = salesPromotions(pr, detailBill, TypeProduct.BULK_PRODUCT.toString(), null,
+							fltWeight);
 				}
-				detailBill.setTotalPriceProduct(totalPriceProduct);
+				detailBill.setTotalPriceProduct(detailBill.getTotalPriceProduct() + totalPriceProduct);
 				flg = true;
 				break;
 			}
@@ -230,23 +227,54 @@ public class StoreCheckout {
 	 * @param fltWeight
 	 * @return totalPriceProduct
 	 */
-	private static Float salesPromotions(Product product, String typeProduct, Integer intSl, Float fltWeight) {
+	private static Float salesPromotions(Product product, DetailBill detailBill, String typeProduct, Integer intSl,
+			Float fltWeight) {
 		Float totalPriceProduct = null;
 		if (TypeProduct.PIECE_PRODUCT.toString().equals(typeProduct)) {
 			if (TypeSales.TYPE_02.toString().equals(product.getTypeSales())) {
-				totalPriceProduct = Float.valueOf(product.getPrice()) * (intSl - intSl / 2);
+				totalPriceProduct = Float.valueOf(product.getPrice()) * intSl;
+				if (detailBill.getNumberOfProduct() != null) {
+					detailBill.setNumberOfProduct(detailBill.getNumberOfProduct() + intSl * 2);
+				} else {
+					detailBill.setNumberOfProduct(intSl * 2);
+				}
 			} else if (TypeSales.TYPE_03.toString().equals(product.getTypeSales())) {
-				totalPriceProduct = Float.valueOf(product.getPrice()) * (intSl - intSl / 3);
+				totalPriceProduct = Float.valueOf(product.getPrice()) * intSl;
+				if (detailBill.getNumberOfProduct() != null) {
+					detailBill.setNumberOfProduct(detailBill.getNumberOfProduct() + intSl + intSl / 2);
+				} else {
+					detailBill.setNumberOfProduct(intSl + intSl / 2);
+				}
 			} else if (TypeSales.TYPE_04.toString().equals(product.getTypeSales())) {
 				totalPriceProduct = Float.valueOf(product.getPrice()) * intSl * 0.75f;
+				if (detailBill.getNumberOfProduct() != null) {
+					detailBill.setNumberOfProduct(detailBill.getNumberOfProduct() + intSl);
+				} else {
+					detailBill.setNumberOfProduct(intSl);
+				}
 			} else {
 				totalPriceProduct = Float.valueOf(product.getPrice()) * intSl;
+				if (detailBill.getNumberOfProduct() != null) {
+					detailBill.setNumberOfProduct(detailBill.getNumberOfProduct() + intSl);
+				} else {
+					detailBill.setNumberOfProduct(intSl);
+				}
 			}
 		} else if (TypeProduct.BULK_PRODUCT.toString().equals(typeProduct)) {
 			if (TypeSales.TYPE_04.toString().equals(product.getTypeSales())) {
 				totalPriceProduct = Float.valueOf(product.getPrice()) * fltWeight * 0.75f;
+				if (detailBill.getWeightofProduct() != null) {
+					detailBill.setWeightofProduct(detailBill.getWeightofProduct() + fltWeight);
+				} else {
+					detailBill.setWeightofProduct(fltWeight);
+				}
 			} else {
 				totalPriceProduct = Float.valueOf(product.getPrice()) * fltWeight;
+				if (detailBill.getWeightofProduct() != null) {
+					detailBill.setWeightofProduct(detailBill.getWeightofProduct() + fltWeight);
+				} else {
+					detailBill.setWeightofProduct(fltWeight);
+				}
 			}
 		}
 		return totalPriceProduct;
