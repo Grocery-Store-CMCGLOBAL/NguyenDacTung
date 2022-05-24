@@ -1,4 +1,3 @@
-/**
  * Author: tungnd
  * create date: 23/05/2022
  */
@@ -32,7 +31,7 @@ import store.checkout.entity.Product;
 public class StoreCheckout {
 	private static SessionFactory factory;
 
-	private static final Pattern positiveNumber = Pattern.compile("\\d*[1-9]\\d*");
+	private static final Pattern positiveNumber = Pattern.compile("\\d*");
 	private static final Pattern decimal = Pattern.compile("\\d*(\\.\\d+)?");
 
 	public static void main(String[] args) {
@@ -48,6 +47,7 @@ public class StoreCheckout {
 		int select = 0;
 		List<DetailBill> listDetailBill = new ArrayList<DetailBill>();
 		do {
+			System.out.println("Please enter your selection:");
 			Scanner scanner = new Scanner(System.in);
 			String option = scanner.nextLine();
 			Matcher matcher = positiveNumber.matcher(option);
@@ -67,7 +67,7 @@ public class StoreCheckout {
 					break;
 				case 3:
 					listDetailBill = new ArrayList<DetailBill>();
-					System.out.println("Good Bye");
+					System.out.println("Thanks you used store checkout");
 					break;
 				default:
 					System.out.println("Invalid input parameters");
@@ -85,25 +85,31 @@ public class StoreCheckout {
 	private static void printBill(List<DetailBill> listDetailBill) {
 		Float totalMoney = 0.0f;
 		Integer index = 0;
+		System.out.println("\nRECEIPT: ");
 		for (DetailBill detailBill : listDetailBill) {
 			Product product = detailBill.getProduct();
 			String typeProduct = product.getTypeProduct();
 			String typeSales = product.getTypeSales();
+			// If the product is in category bulk
 			if (TypeProduct.BULK_PRODUCT.toString().equals(typeProduct)) {
 				typeProduct = "BULK PRODUCT";
+				// If the product is in category piece
 			} else if (TypeProduct.PIECE_PRODUCT.toString().equals(typeProduct)) {
 				typeProduct = "PIECE PRODUCT";
 			}
-			if (TypeSales.TYPE_02.toString().equals(typeSales)) {
+			// set value for promotion type
+			// If type promotion is buy one, get one free
+			if (TypeSales.BUY_ONE_GET_ONE.toString().equals(typeSales)) {
 				typeSales = "BUY ONE, GET ONE FREE";
-			} else if (TypeSales.TYPE_03.toString().equals(typeSales)) {
+				// If type promotion is buy tow, get one free
+			} else if (TypeSales.BUY_TOW_GET_ONE.toString().equals(typeSales)) {
 				typeSales = "BUY TWO, GET ONE FREE";
-			} else if (TypeSales.TYPE_04.toString().equals(typeSales)) {
-				typeSales = "DISCOUNT 25%";
+				// If type promotion is no promotions
 			} else {
 				typeSales = "NO PROMOTIONS";
 			}
-			System.out.println("Index: " + ++index);
+			// output console
+			System.out.println("Product number: " + ++index);
 			System.out.println("Product Id: " + product.getId());
 			System.out.println("Name product: " + product.getNameProduct());
 			System.out.println("TypeProduct: " + typeProduct);
@@ -131,9 +137,9 @@ public class StoreCheckout {
 	private static void checkout(List<DetailBill> listDetailBill, Scanner scanner) {
 		boolean flgEnter = true;
 		Matcher matcher = null;
-		Float totalPrice = null;
 		DetailBill detailBill = null;
 		do {
+			flgEnter = true;
 			System.out.println("Enter Product Code: ");
 			String code = scanner.nextLine();
 			matcher = positiveNumber.matcher(code);
@@ -150,6 +156,7 @@ public class StoreCheckout {
 					if (TypeProduct.PIECE_PRODUCT.toString().equals(product.getTypeProduct())) {
 						String stringSl = null;
 						do {
+							flgEnter2 = true;
 							System.out.println("Enter product quantity: ");
 							stringSl = scanner.nextLine();
 							matcher = positiveNumber.matcher(stringSl);
@@ -171,6 +178,7 @@ public class StoreCheckout {
 					} else if (TypeProduct.BULK_PRODUCT.toString().equals(product.getTypeProduct())) {
 						String stWeight = null;
 						do {
+							flgEnter2 = true;
 							System.out.println("Enter product weight: ");
 							stWeight = scanner.nextLine();
 							matcher = decimal.matcher(stWeight);
@@ -184,7 +192,6 @@ public class StoreCheckout {
 									Float totalPriceProduct = salesPromotions(product, detailBill,
 											TypeProduct.BULK_PRODUCT.toString(), null, fltWeight);
 									detailBill.setProduct(product);
-									detailBill.setWeightofProduct(fltWeight);
 									detailBill.setTotalPriceProduct(totalPriceProduct);
 									listDetailBill.add(detailBill);
 								}
@@ -196,7 +203,17 @@ public class StoreCheckout {
 		} while (!flgEnter);
 	}
 
-	public static boolean exitListDetailBill(List<DetailBill> listDetailBills, Product product, String typeProduct,
+	/**
+	 * Check the product already in the invoice
+	 * 
+	 * @param listDetailBills
+	 * @param product
+	 * @param typeProduct
+	 * @param intSl
+	 * @param fltWeight
+	 * @return
+	 */
+	private static boolean exitListDetailBill(List<DetailBill> listDetailBills, Product product, String typeProduct,
 			Integer intSl, Float fltWeight) {
 		Float totalPriceProduct = null;
 		boolean flg = false;
@@ -220,56 +237,70 @@ public class StoreCheckout {
 	}
 
 	/**
-	 * Calculate the amount of each item
+	 * Calculate the price of each type of product
 	 * 
 	 * @param product
+	 * @param detailBill
+	 * @param typeProduct
 	 * @param intSl
 	 * @param fltWeight
 	 * @return totalPriceProduct
 	 */
 	private static Float salesPromotions(Product product, DetailBill detailBill, String typeProduct, Integer intSl,
 			Float fltWeight) {
-		Float totalPriceProduct = null;
+		float totalPriceProduct = 0.0f;
+		// If the product is sold by piece
 		if (TypeProduct.PIECE_PRODUCT.toString().equals(typeProduct)) {
-			if (TypeSales.TYPE_02.toString().equals(product.getTypeSales())) {
-				totalPriceProduct = Float.valueOf(product.getPrice()) * intSl;
+			totalPriceProduct = Float.valueOf(product.getPrice()) * intSl;
+			// set number of product with case sales promotions buy one, get one free
+			if (TypeSales.BUY_ONE_GET_ONE.toString().equals(product.getTypeSales())) {
 				if (detailBill.getNumberOfProduct() != null) {
 					detailBill.setNumberOfProduct(detailBill.getNumberOfProduct() + intSl * 2);
 				} else {
 					detailBill.setNumberOfProduct(intSl * 2);
 				}
-			} else if (TypeSales.TYPE_03.toString().equals(product.getTypeSales())) {
-				totalPriceProduct = Float.valueOf(product.getPrice()) * intSl;
+				// set number of product with case sales promotions buy two, get one free
+			} else if (TypeSales.BUY_TOW_GET_ONE.toString().equals(product.getTypeSales())) {
 				if (detailBill.getNumberOfProduct() != null) {
 					detailBill.setNumberOfProduct(detailBill.getNumberOfProduct() + intSl + intSl / 2);
 				} else {
 					detailBill.setNumberOfProduct(intSl + intSl / 2);
 				}
-			} else if (TypeSales.TYPE_04.toString().equals(product.getTypeSales())) {
-				totalPriceProduct = Float.valueOf(product.getPrice()) * intSl * 0.75f;
-				if (detailBill.getNumberOfProduct() != null) {
-					detailBill.setNumberOfProduct(detailBill.getNumberOfProduct() + intSl);
-				} else {
-					detailBill.setNumberOfProduct(intSl);
-				}
+				// set number of product with case no sales promotions
 			} else {
-				totalPriceProduct = Float.valueOf(product.getPrice()) * intSl;
 				if (detailBill.getNumberOfProduct() != null) {
 					detailBill.setNumberOfProduct(detailBill.getNumberOfProduct() + intSl);
 				} else {
 					detailBill.setNumberOfProduct(intSl);
 				}
 			}
+			// If the product is sold in bulk
 		} else if (TypeProduct.BULK_PRODUCT.toString().equals(typeProduct)) {
-			if (TypeSales.TYPE_04.toString().equals(product.getTypeSales())) {
-				totalPriceProduct = Float.valueOf(product.getPrice()) * fltWeight * 0.75f;
-				if (detailBill.getWeightofProduct() != null) {
-					detailBill.setWeightofProduct(detailBill.getWeightofProduct() + fltWeight);
-				} else {
-					detailBill.setWeightofProduct(fltWeight);
+			totalPriceProduct = Float.valueOf(product.getPrice()) * fltWeight;
+			// set total weight of product with case sales promotions buy one, get one free
+			if (TypeSales.BUY_ONE_GET_ONE.toString().equals(product.getTypeSales())) {
+				int addWeight = 0;
+				if (fltWeight >= 1) {
+					addWeight = (int) Math.floor(fltWeight);
 				}
+				if (detailBill.getWeightofProduct() != null) {
+					detailBill.setWeightofProduct(detailBill.getWeightofProduct() + fltWeight + (addWeight * 2) / 2);
+				} else {
+					detailBill.setWeightofProduct(fltWeight + (addWeight * 2) / 2);
+				}
+				// set total weight of product with case sales promotions buy two, get one free
+			} else if (TypeSales.BUY_TOW_GET_ONE.toString().equals(product.getTypeSales())) {
+				int addWeight = 0;
+				if (fltWeight >= 2) {
+					addWeight = (int) Math.floor(fltWeight);
+				}
+				if (detailBill.getWeightofProduct() != null) {
+					detailBill.setWeightofProduct(detailBill.getWeightofProduct() + fltWeight + addWeight / 2);
+				} else {
+					detailBill.setWeightofProduct(fltWeight + addWeight / 2);
+				}
+				// set total weight of product with case no promotions
 			} else {
-				totalPriceProduct = Float.valueOf(product.getPrice()) * fltWeight;
 				if (detailBill.getWeightofProduct() != null) {
 					detailBill.setWeightofProduct(detailBill.getWeightofProduct() + fltWeight);
 				} else {
@@ -327,7 +358,7 @@ public class StoreCheckout {
 	 * 
 	 * @return List<Product>
 	 */
-	public static List<Product> listProducts() {
+	private static List<Product> listProducts() {
 		Session session = factory.openSession();
 		Transaction tx = null;
 		List<Product> listProducts = null;
@@ -347,7 +378,7 @@ public class StoreCheckout {
 	}
 
 	/**
-	 * method to show the menu for seller
+	 * method to show the menu
 	 */
 	private static void showMenu() {
 		System.out.println("=========Select the feature below=========");
@@ -357,8 +388,6 @@ public class StoreCheckout {
 		System.out.println("== [3] Shutdown ==");
 		System.out.println("== ==");
 		System.out.println("==========================================");
-		System.out.println("Please enter your selection:");
-		System.out.println("");
 	}
 
 	/**
@@ -369,7 +398,7 @@ public class StoreCheckout {
 		product.setNameProduct("Rice");
 		product.setPrice("2000");
 		product.setTypeProduct(TypeProduct.BULK_PRODUCT.toString());
-		product.setTypeSales(TypeSales.TYPE_04.toString());
+		product.setTypeSales(TypeSales.BUY_TOW_GET_ONE.toString());
 		product.setDateProduce(new Date());
 		product.setDateExpires(new Date());
 		product.setCreateUser(1);
@@ -383,7 +412,7 @@ public class StoreCheckout {
 		product2.setNameProduct("Rice cake");
 		product2.setPrice("3000");
 		product2.setTypeProduct(TypeProduct.PIECE_PRODUCT.toString());
-		product2.setTypeSales(TypeSales.TYPE_02.toString());
+		product2.setTypeSales(TypeSales.BUY_ONE_GET_ONE.toString());
 		product2.setDateProduce(new Date());
 		product2.setDateExpires(new Date());
 		product2.setCreateUser(1);
@@ -397,7 +426,7 @@ public class StoreCheckout {
 		product3.setNameProduct("Snacks");
 		product3.setPrice("4000");
 		product3.setTypeProduct(TypeProduct.PIECE_PRODUCT.toString());
-		product3.setTypeSales(TypeSales.TYPE_03.toString());
+		product3.setTypeSales(TypeSales.BUY_TOW_GET_ONE.toString());
 		product3.setDateProduce(new Date());
 		product3.setDateExpires(new Date());
 		product3.setCreateUser(1);
@@ -411,7 +440,7 @@ public class StoreCheckout {
 		product4.setNameProduct("Sugar");
 		product4.setPrice("1000");
 		product4.setTypeProduct(TypeProduct.BULK_PRODUCT.toString());
-		product4.setTypeSales(TypeSales.TYPE_04.toString());
+		product4.setTypeSales(TypeSales.BUY_ONE_GET_ONE.toString());
 		product4.setDateProduce(new Date());
 		product4.setDateExpires(new Date());
 		product4.setCreateUser(1);
@@ -425,7 +454,7 @@ public class StoreCheckout {
 		product5.setNameProduct("CANDY");
 		product5.setPrice("500");
 		product5.setTypeProduct(TypeProduct.PIECE_PRODUCT.toString());
-		product5.setTypeSales(TypeSales.NORMAL.toString());
+		product5.setTypeSales(TypeSales.NO_PROMOTIONS.toString());
 		product5.setDateProduce(new Date());
 		product5.setDateExpires(new Date());
 		product5.setCreateUser(1);
@@ -439,7 +468,7 @@ public class StoreCheckout {
 		product6.setNameProduct("Water");
 		product6.setPrice("500");
 		product6.setTypeProduct(TypeProduct.PIECE_PRODUCT.toString());
-		product6.setTypeSales(TypeSales.TYPE_04.toString());
+		product6.setTypeSales(TypeSales.BUY_TOW_GET_ONE.toString());
 		product6.setDateProduce(new Date());
 		product6.setDateExpires(new Date());
 		product6.setCreateUser(1);
@@ -453,7 +482,7 @@ public class StoreCheckout {
 		product7.setNameProduct("clothes");
 		product7.setPrice("700");
 		product7.setTypeProduct(TypeProduct.PIECE_PRODUCT.toString());
-		product7.setTypeSales(TypeSales.TYPE_03.toString());
+		product7.setTypeSales(TypeSales.BUY_TOW_GET_ONE.toString());
 		product7.setDateProduce(new Date());
 		product7.setDateExpires(new Date());
 		product7.setCreateUser(1);
@@ -462,5 +491,19 @@ public class StoreCheckout {
 		product7.setUpdateDate(new Date());
 		product7.setDeleteFlg(0);
 		addProduct(product7);
+
+		Product product8 = new Product();
+		product.setNameProduct("Salt");
+		product.setPrice("1200");
+		product.setTypeProduct(TypeProduct.BULK_PRODUCT.toString());
+		product.setTypeSales(TypeSales.NO_PROMOTIONS.toString());
+		product.setDateProduce(new Date());
+		product.setDateExpires(new Date());
+		product.setCreateUser(1);
+		product.setCreateDate(new Date());
+		product.setUpdateUser(1);
+		product.setUpdateDate(new Date());
+		product.setDeleteFlg(0);
+		addProduct(product);
 	}
 }
