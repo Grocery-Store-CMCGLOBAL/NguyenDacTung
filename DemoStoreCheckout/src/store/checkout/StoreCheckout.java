@@ -1,3 +1,4 @@
+/**
  * Author: tungnd
  * create date: 23/05/2022
  */
@@ -47,6 +48,7 @@ public class StoreCheckout {
 		int select = 0;
 		List<DetailBill> listDetailBill = new ArrayList<DetailBill>();
 		do {
+			flgEnter = true;
 			System.out.println("Please enter your selection:");
 			Scanner scanner = new Scanner(System.in);
 			String option = scanner.nextLine();
