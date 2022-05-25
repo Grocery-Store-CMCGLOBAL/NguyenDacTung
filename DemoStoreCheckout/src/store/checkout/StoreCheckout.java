@@ -47,6 +47,8 @@ public class StoreCheckout {
 		boolean flgEnter = true;
 		int select = 0;
 		List<DetailBill> listDetailBill = new ArrayList<DetailBill>();
+		// If input is not positive number and not the number 3. You will be asked to
+		// re-enter input
 		do {
 			flgEnter = true;
 			System.out.println("Please enter your selection:");
@@ -140,21 +142,27 @@ public class StoreCheckout {
 		boolean flgEnter = true;
 		Matcher matcher = null;
 		DetailBill detailBill = null;
+		// If input is not positive number
 		do {
 			flgEnter = true;
 			System.out.println("Enter Product Code: ");
 			String code = scanner.nextLine();
+			// check input must be positive number
 			matcher = positiveNumber.matcher(code);
+			// If input failed.
 			if (!matcher.matches()) {
 				flgEnter = false;
+				// If input is positive number
 			} else {
 				Integer idProduct = Integer.parseInt(code);
 				Product product = getProduct(idProduct);
+				// If does does not there at product
 				if (Objects.isNull(product) || product.getDeleteFlg() == 1) {
 					flgEnter = false;
 					System.out.println("You have entered the wrong product code");
 				} else {
 					boolean flgEnter2 = true;
+					// The product type is piece product. You must enter the product quantity
 					if (TypeProduct.PIECE_PRODUCT.toString().equals(product.getTypeProduct())) {
 						String stringSl = null;
 						Integer intSl = 0;
@@ -167,10 +175,12 @@ public class StoreCheckout {
 								flgEnter2 = false;
 							} else {
 								intSl = Integer.parseInt(stringSl);
+								// Check if the product is already on the invoice
 								if (!exitListDetailBill(listDetailBill, product, TypeProduct.PIECE_PRODUCT.toString(),
 										intSl, null)) {
 									detailBill = new DetailBill();
 									detailBill.setProduct(product);
+									// Total amount for that product
 									Float totalPriceProduct = salesPromotions(detailBill,
 											TypeProduct.PIECE_PRODUCT.toString(), intSl, null);
 									detailBill.setTotalPriceProduct(totalPriceProduct);
@@ -178,6 +188,7 @@ public class StoreCheckout {
 								}
 							}
 						} while (!flgEnter2 || intSl == 0);
+						// The product type is bulk product. You must enter the weight you want to buy
 					} else if (TypeProduct.BULK_PRODUCT.toString().equals(product.getTypeProduct())) {
 						String stWeight = null;
 						float fltWeight = 0.0f;
@@ -190,13 +201,16 @@ public class StoreCheckout {
 								flgEnter2 = false;
 							} else {
 								fltWeight = Float.parseFloat(stWeight);
+								// Check if the product is already on the invoice
 								if (!exitListDetailBill(listDetailBill, product, TypeProduct.BULK_PRODUCT.toString(),
 										null, fltWeight)) {
 									detailBill = new DetailBill();
 									detailBill.setProduct(product);
+									// Total amount for that product
 									Float totalPriceProduct = salesPromotions(detailBill,
 											TypeProduct.BULK_PRODUCT.toString(), null, fltWeight);
 									detailBill.setTotalPriceProduct(totalPriceProduct);
+									// add List Bill
 									listDetailBill.add(detailBill);
 								}
 							}
@@ -208,14 +222,15 @@ public class StoreCheckout {
 	}
 
 	/**
-	 * Check the product already in the invoice
+	 * Check if the product is already on the invoice If it is already in the
+	 * invoice, update Detail Bill
 	 * 
 	 * @param listDetailBills
 	 * @param product
 	 * @param typeProduct
 	 * @param intSl
 	 * @param fltWeight
-	 * @return
+	 * @return true exist / false does not exist
 	 */
 	private static boolean exitListDetailBill(List<DetailBill> listDetailBills, Product product, String typeProduct,
 			Integer intSl, Float fltWeight) {
@@ -223,6 +238,7 @@ public class StoreCheckout {
 		boolean flg = false;
 		for (DetailBill detailBill : listDetailBills) {
 			Product pr = detailBill.getProduct();
+			// If the product exists in the invoice. Update the detail bill
 			if (pr.getId() == product.getId()) {
 				if (TypeProduct.PIECE_PRODUCT.toString().equals(typeProduct)) {
 					totalPriceProduct = salesPromotions(detailBill, TypeProduct.PIECE_PRODUCT.toString(), intSl, null);
