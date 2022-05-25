@@ -264,7 +264,9 @@ public class StoreCheckout {
 				// set number of product with case sales promotions buy two, get one free
 			} else if (TypeSales.BUY_TOW_GET_ONE.toString().equals(product.getTypeSales())) {
 				if (detailBill.getNumberOfProduct() != null) {
-					detailBill.setNumberOfProduct(detailBill.getNumberOfProduct() + intSl + intSl / 2);
+					int numberOld = (int) Math.ceil(((double) detailBill.getNumberOfProduct()) * 2 / 3);
+					int numberNew = numberOld + intSl;
+					detailBill.setNumberOfProduct(numberNew + numberNew / 2);
 				} else {
 					detailBill.setNumberOfProduct(intSl + intSl / 2);
 				}
@@ -281,25 +283,23 @@ public class StoreCheckout {
 			totalPriceProduct = Float.valueOf(product.getPrice()) * fltWeight;
 			// set total weight of product with case sales promotions buy one, get one free
 			if (TypeSales.BUY_ONE_GET_ONE.toString().equals(product.getTypeSales())) {
-				int addWeight = 0;
-				if (fltWeight >= 1) {
-					addWeight = (int) Math.floor(fltWeight);
-				}
 				if (detailBill.getWeightofProduct() != null) {
-					detailBill.setWeightofProduct(detailBill.getWeightofProduct() + fltWeight + (addWeight * 2) / 2);
+					float weightOld = (float) Math.ceil(Math.floor(detailBill.getWeightofProduct()) / 2)
+							+ detailBill.getWeightofProduct() % 1;
+					float weightNew = weightOld + fltWeight;
+					detailBill.setWeightofProduct(weightNew + (float) Math.floor(weightNew));
 				} else {
-					detailBill.setWeightofProduct(fltWeight + (addWeight * 2) / 2);
+					detailBill.setWeightofProduct(fltWeight + (float) Math.floor(fltWeight));
 				}
 				// set total weight of product with case sales promotions buy two, get one free
 			} else if (TypeSales.BUY_TOW_GET_ONE.toString().equals(product.getTypeSales())) {
-				int addWeight = 0;
-				if (fltWeight >= 2) {
-					addWeight = (int) Math.floor(fltWeight);
-				}
 				if (detailBill.getWeightofProduct() != null) {
-					detailBill.setWeightofProduct(detailBill.getWeightofProduct() + fltWeight + addWeight / 2);
+					float weightOld = (float) Math.ceil(Math.floor(detailBill.getWeightofProduct()) * 2 / 3)
+							+ detailBill.getWeightofProduct() % 1;
+					float weightNew = weightOld + fltWeight;
+					detailBill.setWeightofProduct(weightNew + (float) Math.floor(weightNew / 2));
 				} else {
-					detailBill.setWeightofProduct(fltWeight + addWeight / 2);
+					detailBill.setWeightofProduct(fltWeight + (float) Math.floor(fltWeight / 2));
 				}
 				// set total weight of product with case no promotions
 			} else {
