@@ -32,8 +32,8 @@ import store.checkout.entity.Product;
 public class StoreCheckout {
 	private static SessionFactory factory;
 
-	private static final Pattern positiveNumber = Pattern.compile("\\d*");
-	private static final Pattern decimal = Pattern.compile("\\d*(\\.\\d+)?");
+	private static final Pattern positiveNumber = Pattern.compile("\\d+");
+	private static final Pattern decimal = Pattern.compile("\\d+(\\.\\d+)?");
 
 	public static void main(String[] args) {
 		try {
