@@ -122,7 +122,7 @@ public class StoreCheckout {
 				System.out.println("Quantity: " + detailBill.getNumberOfProduct());
 			}
 			if (detailBill.getWeightofProduct() != null) {
-				System.out.println("Weight: " + detailBill.getWeightofProduct() + "kg");
+				System.out.println("Weight: " + String.format("%.2f", detailBill.getWeightofProduct()) + "kg");
 			}
 			System.out.println("Type Sales: " + typeSales);
 			System.out.println("total Price: " + detailBill.getTotalPriceProduct() + "$");
