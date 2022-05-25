@@ -157,6 +157,7 @@ public class StoreCheckout {
 					boolean flgEnter2 = true;
 					if (TypeProduct.PIECE_PRODUCT.toString().equals(product.getTypeProduct())) {
 						String stringSl = null;
+						Integer intSl = 0;
 						do {
 							flgEnter2 = true;
 							System.out.println("Enter product quantity: ");
@@ -165,7 +166,7 @@ public class StoreCheckout {
 							if (!matcher.matches()) {
 								flgEnter2 = false;
 							} else {
-								Integer intSl = Integer.parseInt(stringSl);
+								intSl = Integer.parseInt(stringSl);
 								if (!exitListDetailBill(listDetailBill, product, TypeProduct.PIECE_PRODUCT.toString(),
 										intSl, null)) {
 									detailBill = new DetailBill();
@@ -176,9 +177,10 @@ public class StoreCheckout {
 									listDetailBill.add(detailBill);
 								}
 							}
-						} while (!flgEnter2);
+						} while (!flgEnter2 || intSl == 0);
 					} else if (TypeProduct.BULK_PRODUCT.toString().equals(product.getTypeProduct())) {
 						String stWeight = null;
+						float fltWeight = 0.0f;
 						do {
 							flgEnter2 = true;
 							System.out.println("Enter product weight: ");
@@ -187,7 +189,7 @@ public class StoreCheckout {
 							if (!matcher.matches()) {
 								flgEnter2 = false;
 							} else {
-								Float fltWeight = Float.parseFloat(stWeight);
+								fltWeight = Float.parseFloat(stWeight);
 								if (!exitListDetailBill(listDetailBill, product, TypeProduct.BULK_PRODUCT.toString(),
 										null, fltWeight)) {
 									detailBill = new DetailBill();
@@ -198,7 +200,7 @@ public class StoreCheckout {
 									listDetailBill.add(detailBill);
 								}
 							}
-						} while (!flgEnter2);
+						} while (!flgEnter2 || fltWeight == 0);
 					}
 				}
 			}
