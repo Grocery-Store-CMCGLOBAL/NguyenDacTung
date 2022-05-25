@@ -170,9 +170,9 @@ public class StoreCheckout {
 								if (!exitListDetailBill(listDetailBill, product, TypeProduct.PIECE_PRODUCT.toString(),
 										intSl, null)) {
 									detailBill = new DetailBill();
-									Float totalPriceProduct = salesPromotions(product, detailBill,
-											TypeProduct.PIECE_PRODUCT.toString(), intSl, null);
 									detailBill.setProduct(product);
+									Float totalPriceProduct = salesPromotions(detailBill,
+											TypeProduct.PIECE_PRODUCT.toString(), intSl, null);
 									detailBill.setTotalPriceProduct(totalPriceProduct);
 									listDetailBill.add(detailBill);
 								}
@@ -193,9 +193,9 @@ public class StoreCheckout {
 								if (!exitListDetailBill(listDetailBill, product, TypeProduct.BULK_PRODUCT.toString(),
 										null, fltWeight)) {
 									detailBill = new DetailBill();
-									Float totalPriceProduct = salesPromotions(product, detailBill,
-											TypeProduct.BULK_PRODUCT.toString(), null, fltWeight);
 									detailBill.setProduct(product);
+									Float totalPriceProduct = salesPromotions(detailBill,
+											TypeProduct.BULK_PRODUCT.toString(), null, fltWeight);
 									detailBill.setTotalPriceProduct(totalPriceProduct);
 									listDetailBill.add(detailBill);
 								}
@@ -225,11 +225,10 @@ public class StoreCheckout {
 			Product pr = detailBill.getProduct();
 			if (pr.getId() == product.getId()) {
 				if (TypeProduct.PIECE_PRODUCT.toString().equals(typeProduct)) {
-					totalPriceProduct = salesPromotions(pr, detailBill, TypeProduct.PIECE_PRODUCT.toString(), intSl,
-							null);
+					totalPriceProduct = salesPromotions(detailBill, TypeProduct.PIECE_PRODUCT.toString(), intSl, null);
 				}
 				if (TypeProduct.BULK_PRODUCT.toString().equals(typeProduct)) {
-					totalPriceProduct = salesPromotions(pr, detailBill, TypeProduct.BULK_PRODUCT.toString(), null,
+					totalPriceProduct = salesPromotions(detailBill, TypeProduct.BULK_PRODUCT.toString(), null,
 							fltWeight);
 				}
 				detailBill.setTotalPriceProduct(detailBill.getTotalPriceProduct() + totalPriceProduct);
@@ -243,16 +242,15 @@ public class StoreCheckout {
 	/**
 	 * Calculate the price of each type of product
 	 * 
-	 * @param product
 	 * @param detailBill
 	 * @param typeProduct
 	 * @param intSl
 	 * @param fltWeight
 	 * @return totalPriceProduct
 	 */
-	private static Float salesPromotions(Product product, DetailBill detailBill, String typeProduct, Integer intSl,
-			Float fltWeight) {
+	private static Float salesPromotions(DetailBill detailBill, String typeProduct, Integer intSl, Float fltWeight) {
 		float totalPriceProduct = 0.0f;
+		Product product = detailBill.getProduct();
 		// If the product is sold by piece
 		if (TypeProduct.PIECE_PRODUCT.toString().equals(typeProduct)) {
 			totalPriceProduct = Float.valueOf(product.getPrice()) * intSl;
